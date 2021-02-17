@@ -1,23 +1,26 @@
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from typing import List
-
-
-Account = namedtuple('Account', 'account_number, buying_power, cash, daytrade_count, daytrading_buying_power, equity, '
-                                'id, initial_margin, '
-                                'last_equity, last_maintenance_margin, long_market_value, maintenance_margin,'
-                                'multiplier, pattern_day_trader, portfolio_value, regt_buying_power,'
-                                'short_market_value, shorting_enabled, sma, status, trade_suspended_by_user, '
-                                'trading_blocked')
+import dataclasses
 
 """
-constraints
-asset_class = us_equity
-qty always filled
-only market orders
-only day trades
-no extended hours
+cash -> Cash balance
+pattern_day_trader -> boolean: Whether or not the account has been flagged as a pattern day trader
+equity -> float: Cash + long_market_value + short_market_value
+last equity -> Equity as of previous trading day at 16:00:00 ET
+date_trade_count -> The current number of daytrades that have been made in the last 5 trading days (inclusive of today)
 """
-Position = namedtuple('Position', 'symbol, qty, side, market_value')
+
+
+@dataclasses.dataclass
+class Account:
+    account_number: int
+    cash: float
+    daytrade_count: int
+    equity: int
+    last_equity: int
+    stocks_owned: defaultdict
+    pattern_day_trader: bool
+
 
 """
 constraints
@@ -28,17 +31,8 @@ only day trades
 no extended hours
 https://alpaca.markets/docs/trading-on-alpaca/orders/
 """
-Order = namedtuple('Order', 'symbol, qty, side, status')
-
+Order = namedtuple('Order', 'symbol, qty, side, market_value')
 
 if __name__ == '__main__':
-
     order = Order('AAPL', 20, 'buy', 'success')
     print(order.symbol)
-
-    pos = Position('AAPL', 20, 'buy', 100)
-    print(pos.side)
-
-    # order = ('AAPL', 20, 'buy', 'success')
-    # print(order[0])
-
