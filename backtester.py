@@ -1,30 +1,50 @@
+from typing import List
+
 import pandas as pd
 from ray.pickle5_files import pickle5
 import numpy as np
+import quantstats as qs
+import enum
 
 
-class BackTester:
-    def __init__(self, returns_pd:pd.DataFrame, timeframe):
-        """
-        returns: |timedelta|returns
-        timeframe: minute, day,
-        """
-        self.returns = returns
-        self.tf = timeframe
+class BTMetrics(enum.Enum):
+    SHARPE_RATIO = 'SR'
+    MAX_DRAWDOWN = 'MDR'
 
-    def backtest(self) -> pd.DataFrame :
-        pass
 
-    def sharpe_ratio(self) -> float:
-        returns = self.returns['returns']
-        change = returns.pct_change(1)
-        mu = change.mean()
-        sigma = change.std()
-        sr = mu/sigma
-        return sr
+qs.extend_pandas()
 
-    def max_drawndown(self) -> float:
-        pass
+
+def weekly_backtest_with(account_balances,
+                         metrics:List[BTMetrics]):
+    """
+    :param account_balances:
+    :param paramaters: ex ['sharpe_ratio', '']
+    :return:
+    """
+    periods = len(account_balances)
+    returns = []
+    result = dict()
+    if BTMetrics.SHARPE_RATIO in metrics:
+        result[BTMetrics.SHARPE_RATIO] = qs.stats.sharpe(returns, periods=periods, annualize=False)
+    # returns only performance metrics given in list
+
+    return
+
+
+def weekly_backtest_all(account_balances):
+    """
+    returns.columns = [timedelta, account_balance]
+    Ex
+    index|timedelta|returns
+    0|XXX-XXX-X|10000
+    0|XXX-XXX-X|10010
+    returns: |timedelta|returns
+    timeframe: minute, day,
+    """
+
+    # return all performance metrics
+    return
 
 
 if __name__ == '__main__':
@@ -34,5 +54,3 @@ if __name__ == '__main__':
 
     returns_pd = pd.DataFrame({'timedelta' : date, 'returns' : returns})
     print(returns_pd)
-
-    tester = BackTester(returns_pd, 'min')

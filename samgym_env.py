@@ -3,6 +3,8 @@ from collections import defaultdict
 from preprocessor import make_orders
 import gym
 from broker import Broker, Account
+import backtester as bt
+import pandas as pd
 
 
 class SAMGameGym(gym.Env):
@@ -10,7 +12,6 @@ class SAMGameGym(gym.Env):
         account = Account(000000, env_config['initial_cash'], 0, 0, 0, defaultdict(lambda: int), False)
 
         self.broker = Broker(account, 400)
-        self.reporter = None
         self.all_tickers = env_config['all_tickers']
         self.n_symbols = env_config['n_symbols']
         self.tech_indicators = env_config['tech_indicators']
@@ -29,13 +30,19 @@ class SAMGameGym(gym.Env):
 
         return {'data' : frame, 'images' : images}
 
+    def end_of_week(self):
+        return True
+
     def step(self, action):
 
         next_frame = self.broker.next()
         orders = make_orders(self.all_tickers, action, next_frame)
         self.broker.place_orders(orders)
 
-        perf = self.reporter.get_performance()
+        if self.end_of_week():
+            weekly_perf = bt.weekly_backtest_with(pd.DataFrame(), [bt.BTParameters.SHARPE_RATIO,
+                                                                   bt.BTParameters.MAX_DRAWDOWN])
+
         reward = sum(perf.values())
 
         done = self.broker.done()
