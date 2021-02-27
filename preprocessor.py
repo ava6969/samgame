@@ -74,6 +74,7 @@ def normalize(df_dict, _min=0, _max=1):
     return df_dict
 
 
-def make_orders(tickers, qty, frame):
+def make_orders(tickers, qty_idx, frame, qty_val):
     market_values = [frame[t].close.values[-1] for t in tickers]  # get all closing price
-    return [Order(t, abs(q), 'buy' if q > 0 else 'sell', v) for t, q, v in zip(tickers, qty, market_values) if q != 0 ]
+    return [Order(t, abs(qty_val[q]), 'buy' if qty_val[q] > 0 else 'sell' if qty_val[q] < 0 else 'hold', v)
+            for t, q, v in zip(tickers, qty_idx, market_values) ]

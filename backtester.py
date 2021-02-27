@@ -15,21 +15,24 @@ class BTMetrics(enum.Enum):
 qs.extend_pandas()
 
 
-def weekly_backtest_with(account_balances,
-                         metrics:List[BTMetrics]):
+def weekly_backtest_with(account_balances, metrics:List[BTMetrics]):
     """
     :param account_balances:
     :param paramaters: ex ['sharpe_ratio', '']
     :return:
     """
     periods = len(account_balances)
-    returns = []
+    if periods < 2:
+        return {'empty': 0}
+    returns = account_balances.pct_change()
     result = dict()
     if BTMetrics.SHARPE_RATIO in metrics:
-        result[BTMetrics.SHARPE_RATIO] = qs.stats.sharpe(returns, periods=periods, annualize=False)
+        result[BTMetrics.SHARPE_RATIO] = float(qs.stats.sharpe(returns, periods=periods, annualize=False))
+    if BTMetrics.MAX_DRAWDOWN in metrics:
+        result[BTMetrics.MAX_DRAWDOWN] = float(qs.stats.max_drawdown(account_balances))
     # returns only performance metrics given in list
 
-    return
+    return result
 
 
 def weekly_backtest_all(account_balances):

@@ -18,8 +18,18 @@ class Account:
     daytrade_count: int
     equity: int
     last_equity: int
-    stocks_owned: defaultdict
+    stocks_owned: dict
     pattern_day_trader: bool
+
+    def flat(self):
+        pv = [self.cash,
+              self.daytrade_count,
+              self.equity,
+              self.last_equity,
+              self.pattern_day_trader,
+              ]
+        pv.extend(list(self.stocks_owned.values()))
+        return pv
 
 
 """
