@@ -8,9 +8,9 @@ from quantstats import stats
 
 class BTMetrics(enum.Enum):
 
-    D_SHARPE_RATIO = 'D-SR'
-    D_WIN_RATE = 'D-WR'
-    D_VOLATILITY = 'D-VOL'
+    SHARPE_RATIO = 'SR'
+    WIN_RATE = 'WR'
+    VOLATILITY = 'VOL'
     D_SORTINO_RATIO = 'D-SOR'
     D_CALMAR_RATIO = 'D-CAL'
     D_RECOVERY_FACTOR = 'D-RF'
@@ -89,21 +89,23 @@ def daily_backtest(account_balances, daily_returns, metrics):
     return d_sharpe_ratio,d_win_rate,d_volatility,d_sortino_ratio,d_calmar_ratio,d_recovery_factor, \
            d_risk_return_ratio,d_max_drawdown,d_drawdown_details,d_alpha,d_beta
 
-def weekly_backtest(account_balances, weekly_returns,
-                         metrics:List[BTMetrics]):
+def weekly_backtest(account_balances , metrics:List[BTMetrics]):
     """
     :param account_balances:
-    :param paramaters: ex ['sharpe_ratio', '']
+    :param metrics: ex [BTMetrics.SHARPE_RATIO , BTMetrics.WIN_RATE ]
     :return:
     """
     periods = len(account_balances)
-    #returns = []
-    #result = dict()
+    _, weekly_returns, _, _ = calculate_returns(account_balances)
+
+    result = dict() # map of the metric - > calculated value
     if BTMetrics.SHARPE_RATIO in metrics:
         result[BTMetrics.SHARPE_RATIO] = qs.stats.sharpe(weekly_returns, periods=periods, annualize=False)
+    if BTMetrics.WIN_RATE in metrics:
+        result[BTMetrics.WIN_RATE] = qs.stats.win_rate(weekly_returns)
+    if BTMetrics.VOLATILITY in metrics:
+        result[BTMetrics.WIN_RATE] = qs.stats.win_rate(weekly_returns)
 
-    w_sharpe_ratio = qs.stats.sharpe(weekly_returns, periods=7, annualize=False)
-    w_win_rate = qs.stats.win_rate(weekly_returns)
     w_volatility = qs.stats.volatility(weekly_returns, periods=7, annualize=False)
     w_sortino_ratio = qs.stats.sortino(weekly_returns, periods=7, annualize=False)
     w_calmar_ratio = qs.stats.calmar(weekly_returns)
@@ -113,8 +115,7 @@ def weekly_backtest(account_balances, weekly_returns,
     w_drawdown_details = qs.stats.drawdown_details(w_max_drawdown)
     w_alpha, w_beta = qs.stats.greeks(weekly_returns, SPY / BTC? / cryptoETF?, periods=7)
 
-    return w_sharpe_ratio,w_win_rate,w_volatility,w_sortino_ratio,w_calmar_ratio,w_recovery_factor, \
-           w_risk_return_ratio,w_max_drawdown,w_drawdown_details,w_alpha,w_beta
+    return result
 
 def monthly_backtest(account_balances, monthly_returns, metrics):
 

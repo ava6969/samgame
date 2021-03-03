@@ -23,17 +23,17 @@ fig = mpf.figure(figsize=(12, 9))
 
 class DataGenerator:
     def __init__(self, start=None, end=None):
-        all_minute_loc = glob.glob(f'C:\\Users\\Dewe\\samgame\\datasets\\minute\\*')
+        all_minute_loc = glob.glob(f'/home/dewe/samgame/datasets/minute/*')
         self.sym_dict = {s.split('\\')[-1].split('_')[0]: s for s in all_minute_loc}
         if start and end:
             nyse = mcal.get_calendar('NYSE')
             early = nyse.schedule(start_date=start, end_date=end)
             full_date_range = mcal.date_range(early, frequency='1min').tz_convert(NY)
             self.full_date_range = full_date_range
-            with open(f'C:\\Users\\Dewe\\samgame\\datasets\\dates_{start.year}_{end.year}.pkl', 'wb') as pkl:
+            with open(f'/home/dewe/samgame/datasets/dates_{start.year}_{end.year}.pkl', 'wb') as pkl:
                 pickle.dump(full_date_range, pkl)
         else:
-            with open(f'C:\\Users\\Dewe\\samgame\\datasets\\dates_2004_2020.pkl', 'rb') as pkl:
+            with open(f'/home/dewe/samgame/datasets/dates_2004_2020.pkl', 'rb') as pkl:
                 self.full_date_range = pickle.load(pkl)
 
         self.all_syms = list(self.sym_dict.keys())
